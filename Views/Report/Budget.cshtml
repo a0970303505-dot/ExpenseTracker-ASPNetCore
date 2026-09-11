@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["PageTitle"] = "Budget Report";
+    ViewData["PageActionText"] = "Manage Budgets";
+    ViewData["PageActionUrl"] = "/Budget/Index";
+
+    // 取得當前顯示的月份，用來計算上下個月
+    DateTime selectedMonth = ViewBag.SelectedMonth ?? DateTime.Now;
+    var prevMonth = selectedMonth.AddMonths(-1);
+    var nextMonth = selectedMonth.AddMonths(1);
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="widget p-5" style="background-color:#212b36">
+
+            <div class="d-flex justify-content-end align-items-center mb-5">
+
+
+                <div class="d-flex align-items-center">
+                    <a href="/Report/Budget/@prevMonth.Year/@prevMonth.Month" class="btn btn-sm btn-outline-secondary border-0 me-2 text-decoration-none">
+                        <i class="fa-solid fa-chevron-left fa-lg"></i>
+                    </a>
+
+                    <h4 class="fw-bold text-muted mb-0 mx-3" style="min-width: 120px; text-align: center;">
+                        @selectedMonth.ToString("MMM yyyy", new System.Globalization.CultureInfo("en-US"))
+                    </h4>
+
+                    <a href="/Report/Budget?month=@nextMonth.Month&year=@nextMonth.Year" class="btn btn-sm btn-outline-secondary border-0 ms-2 text-decoration-none">
+                        <i class="fa-solid fa-chevron-right fa-lg"></i>
+                    </a>
+                </div>
+            </div>
+
+            @if (ViewBag.BudgetReport != null)
+            {
+                var items = ViewBag.BudgetReport as IEnumerable<dynamic>;
+
+                if (items != null && items.Any())
+                {
+                    foreach (var item in items)
+                    {
+                        var limit = (decimal)item.BudgetLimit;
+                        var actual = (decimal)item.ActualAmount;
+
+                        // 計算百分比
+                        var percentage = limit > 0 ? (int)((actual / limit) * 100) : 0;
+                        var displayPercentage = percentage > 100 ? 100 : percentage;
+
+                        // 顏色邏輯 (綠/黃/紅)
+                        var statusColor = "bg-success";
+                        if (percentage >= 100) { statusColor = "bg-danger"; }
+                        else if (percentage >= 80) { statusColor = "bg-warning"; }
+
+                        <div class="mb-5">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="fw-bold mb-0">@item.CategoryName</h5>
+                                <div class="text-end">
+                                    <span class="fw-bold" style="font-size: 1.1rem;">@actual.ToString("C0")</span>
+                                    <span class="text-muted small"> / @limit.ToString("C0")</span>
+                                </div>
+                            </div>
+
+                            <div class="progress" style="height: 20px; background-color: #1a222b; border-radius: 10px;">
+                                <div class="progress-bar @statusColor progress-bar-striped progress-bar-animated"
+                                     role="progressbar"
+                                     style="width: @displayPercentage%; border-radius: 10px; font-weight: bold; font-size: 0.85rem;"
+                                     aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100">
+                                    @percentage%
+                                </div>
+                            </div>
+
+                            @if (percentage >= 100)
+                            {
+                                <small class="text-danger mt-1 d-block fw-bold">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> Over Budget!
+                                </small>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center p-5">
+                        <i class="fa-solid fa-wallet fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No budget found for this month.</h5>
+                        <a href="/Budget/Create" class="btn btn-primary mt-3">Set Budget</a>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,119 @@
+﻿@model expense_tracker.Models.Account
+
+@{
+    ViewData["Title"] = Model.AccountId == 0 ? "Create Account" : "Edit Account";
+    // 接收後端的圖示清單
+    var icons = ViewBag.Icons as List<string>;
+}
+
+<div class="row">
+
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm mb-4" style="background-color: #212b36; border-radius: 15px;">
+            <div class="card-header border-0 pt-3 pb-0 bg-transparent">
+                <h5 class="mb-0 fw-bold text-white">@ViewData["Title"]</h5>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="AddOrEdit">
+                    <input type="hidden" asp-for="AccountId" />
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label text-white-50 small">Account Name</label>
+                        <input asp-for="Title" class="form-control shadow-none" placeholder="e.g. Cash, Bank Name"
+                               style="background-color: #1a222b; border: 1px solid #444; color: #fff;" />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Icon" class="form-label text-white-50 small">Icon (Emoji)</label>
+                        <input asp-for="Icon" id="IconInput" class="form-control shadow-none" placeholder="Click an icon on the right 👉"
+                               style="background-color: #1a222b; border: 1px solid #444; color: #fff;" />
+                        <span asp-validation-for="Icon" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Balance" class="form-label text-white-50 small">Balance</label>
+                        <input asp-for="Balance" class="form-control shadow-none" type="number"
+                               style="background-color: #1a222b; border: 1px solid #444; color: #fff;" />
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <a asp-action="Index" class="btn btn-secondary shadow-none"
+                           style="min-width: 120px; background-color: #2c3e50; border: none; display:flex; align-items:center; justify-content:center;">
+                            Cancel
+                        </a>
+
+                        <button type="submit" class="btn btn-success shadow-none"
+                                style="min-width: 120px;">
+                            <i class="fa-solid fa-floppy-disk me-2"></i> Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card border-0 shadow-sm h-100" style="background-color: #212b36; border-radius: 15px;">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4 text-center text-muted small text-uppercase">Choose an Icon</h5>
+
+                <div class="d-flex flex-wrap gap-2 justify-content-center align-content-start" style="max-height: 350px; overflow-y: auto;">
+                    @if (icons != null)
+                    {
+                        foreach (var iconChar in icons)
+                        {
+                            <button type="button"
+                                    class="btn btn-outline-secondary icon-btn border-0 fs-2"
+                                    onclick="pickIcon('@iconChar')"
+                                    style="width: 60px; height: 60px; display:flex; align-items:center; justify-content:center;">
+                                @iconChar
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // 點選右邊，填入左邊 
+        function pickIcon(selectedEmoji) {
+            
+            var input = document.getElementById("IconInput");
+            if(input) {
+                input.value = selectedEmoji;
+            }
+        }
+    </script>
+
+    <style>
+        /* 右邊按鈕的美化特效 */
+        .icon-btn:hover {
+            background-color: #343a40;
+            transform: scale(1.2); 
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        
+        .d-flex::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .d-flex::-webkit-scrollbar-thumb {
+            background-color: #444;
+            border-radius: 4px;
+        }
+
+        .d-flex::-webkit-scrollbar-track {
+            background-color: #1a222b;
+        }
+    </style>
+}

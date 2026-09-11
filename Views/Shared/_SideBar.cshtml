@@ -1,0 +1,161 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using expense_tracker.Models
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    // 定義預設狀態 (沒登入時顯示的文字) 
+    string displayTitle = "Wallet App";  
+    string displaySubtitle = "Guest";    
+    string profilePic = "/profile.jpg"; 
+
+    
+    var user = await UserManager.GetUserAsync(User);
+
+    // 如果有登入，就覆蓋上面的變數 
+    if (user != null)
+    {
+        displayTitle = user.FullName; // 改成顯示名字
+        displaySubtitle = "Host";     // 改成顯示 Host
+
+       
+        if (user.ProfilePicture != null)
+        {
+            var base64 = Convert.ToBase64String(user.ProfilePicture);
+            profilePic = $"data:image/*;base64,{base64}";
+        }
+    }
+
+    // 選單邏輯 
+    List<Object> menuItems = new List<Object>();
+
+    menuItems.Add(new { text = "General", separator = true });
+
+    menuItems.Add(new
+    {
+        text = "Dashboard",
+        url = "/",
+        iconCss = "fa-solid fa-box"
+    });
+
+    menuItems.Add(new
+    {
+        text = "Categories",
+        url = "/Category/Index",
+        iconCss = "fa-solid fa-folder-closed"
+    });
+
+    menuItems.Add(new
+    {
+        text = "Transactions",
+        url = "/Transaction/Index",
+        iconCss = "fa-solid fa-arrow-right-arrow-left"
+    });
+   
+    menuItems.Add(new
+    {
+        text = "My Wallet",      
+        url = "/Wallet/Index",    
+        iconCss = "fa-solid fa-building-columns" 
+    });
+    
+    menuItems.Add(new
+    {
+        text = "Budgets",
+        url = "/Budget/Index",
+        iconCss = "fa-solid fa-wallet"
+    });
+
+    menuItems.Add(new { text = "Extras", separator = true });
+
+    menuItems.Add(new
+    {
+        text = "Budget Reports",
+        url = $"/Report/Budget/{DateTime.Now.Year}/{DateTime.Now.Month}",
+        iconCss = "fa-solid fa-chart-pie"
+    });
+
+    // 改成指向 Profile 設定頁
+    menuItems.Add(new
+    {
+        text = "Settings",
+        url = "/Account/Profile",
+        iconCss = "fa-solid fa-gear"
+    });
+}
+
+<style>
+    /* 頭像樣式 */
+    .profile-img-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #fff;
+    }
+
+    /* 讓側邊欄內容滿版，以便推擠登出鈕 */
+    .sidebar-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+</style>
+
+<ejs-sidebar id="sidebar" width="290px" enableDock dockSize="100px"
+             target=".dock-target" enableGestures="false">
+    <e-content-template>
+
+        <div class="sidebar-content-wrapper">
+
+            <div class="logo-wrapper">
+                <div class="app-logo">
+                    <img src="~/favicon-32x32.png" />
+                </div>
+                <div class="w-100"></div>
+                <i id="sidebar-toggler" class="fa-solid"></i>
+            </div>
+
+            <div class="profile-wrapper">
+                <img class="profile-img-circle" src="@profilePic" />
+                <div class="titles d-flex flex-column ps-3">
+                    <h6 class="mb-0">@displayTitle</h6>
+                    <span class="text-muted">@displaySubtitle</span>
+                </div>
+            </div>
+
+            <div class="flex-grow-1">
+                <ejs-menu id="menu"
+                          items="menuItems"
+                          orientation="Vertical"
+                          hamburgerMode></ejs-menu>
+            </div>
+
+            <div class="p-3 border-top border-secondary">
+                @if (user != null)
+                {
+                    <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
+                        <button type="submit" class="btn btn-outline-danger w-100" onclick="return confirm('Are you sure you want to logout?');">
+                            <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a href="/Account/Login" class="btn btn-outline-success w-100">
+                        <i class="fa-solid fa-right-to-bracket me-2"></i> Login
+                    </a>
+                }
+            </div>
+
+        </div>
+    </e-content-template>
+</ejs-sidebar>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        dockBar = document.getElementById('sidebar').ej2_instances[0];
+        document.getElementById('sidebar-toggler').onclick = function () {
+            dockBar.toggle();
+        };
+    });
+</script>

@@ -1,0 +1,33 @@
+﻿@model expense_tracker.Models.ApplicationUser
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="widget p-5" style="background-color:#212b36">
+            <h3 class="fw-bold mb-4 text-white">Edit Profile</h3>
+
+            <form method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Account Name</label>
+                    <input type="text" name="fullName" class="form-control" value="@Model.FullName"
+                           style="background-color:#1a222b; border: 1px solid #343a40; color:white;" required />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-muted small">Change Profile Picture</label>
+                    <input type="file" name="profilePicture" class="form-control" accept="image/*"
+                           style="background-color:#1a222b; border: 1px solid #343a40; color:white;" />
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="/Account/Profile" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-success px-4">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

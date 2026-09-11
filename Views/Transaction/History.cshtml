@@ -1,0 +1,195 @@
+﻿@model IEnumerable<expense_tracker.Models.Transaction>
+
+@{
+    ViewData["PageTitle"] = "Transaction History";
+}
+
+<div class="row">
+
+    <div class="col-md-8">
+
+        <div class="widget p-4 mb-3" style="background-color:#212b36">
+            <h5 class="fw-bold mb-3">Filter Transactions</h5>
+
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <input type="text" id="searchInput" value="@Context.Request.Query["searchQuery"]"
+                           class="form-control shadow-none"
+                           placeholder="Search Note, Category or Account..."
+                           style="background-color: #1a222b; color: #fff; border: 1px solid #444; height: 38px;" />
+                </div>
+
+                <div class="col-md-4">
+                    <ejs-daterangepicker id="dateRangeInput" value="@ViewBag.DateRange"
+                                         format="yyyy-MM-dd" separator="-" placeholder="Select Date Range"
+                                         style="height: 38px;">
+                    </ejs-daterangepicker>
+                </div>
+
+                <div class="col-md-2 d-flex">
+                    <button type="button" onclick="onSearchClick()" class="btn btn-primary w-100 shadow-none me-1">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <a href="/Transaction/History" class="btn btn-outline-secondary w-100 shadow-none d-flex align-items-center justify-content-center">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3 text-white gap-2">
+            <div class="p-2 w-100 rounded text-center" style="background-color: #212b36; border: 1px solid #2c3e50;">
+                <small class="text-muted text-uppercase" style="font-size: 0.75rem;">Income</small>
+                <h5 class="fw-bold text-success mb-0">@ViewBag.TotalIncome</h5>
+            </div>
+            <div class="p-2 w-100 rounded text-center" style="background-color: #212b36; border: 1px solid #2c3e50;">
+                <small class="text-muted text-uppercase" style="font-size: 0.75rem;">Expense</small>
+                <h5 class="fw-bold text-danger mb-0">@ViewBag.TotalExpense</h5>
+            </div>
+            <div class="p-2 w-100 rounded text-center" style="background-color: #212b36; border: 1px solid #2c3e50;">
+                <small class="text-muted text-uppercase" style="font-size: 0.75rem;">Balance</small>
+                <h5 class="fw-bold text-primary mb-0">@ViewBag.Balance</h5>
+            </div>
+        </div>
+
+        <div class="widget p-0" style="background-color:#212b36;">
+            <ejs-grid id="transactions" dataSource="@Model" gridLines="None"
+                      allowSorting="true" allowPaging="true" width="100%">
+                <e-grid-pagesettings pageSize="10"></e-grid-pagesettings>
+                <e-grid-columns>
+                    <e-grid-column headerText="Category" field="CategoryTitleWithIcon" template="#categoryTemplate" width="200px"></e-grid-column>
+                    <e-grid-column headerText="Account" field="AccountTitleWithIcon" width="150px"></e-grid-column>
+                    <e-grid-column headerText="Date" field="Date" type="date" format="MMM-dd-yy" width="120px"></e-grid-column>
+                    <e-grid-column headerText="Amount" field="FormattedAmount" textAlign="Right" width="120px" template="#amountTemplate"></e-grid-column>
+                    <e-grid-column headerText="Note" field="Note"></e-grid-column>
+                </e-grid-columns>
+            </ejs-grid>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="widget h-100 d-flex flex-column" style="background-color:#212b36; padding: 20px;">
+
+            <h5 class="fw-bold mb-3 text-center small text-uppercase text-muted">@ViewBag.ChartTitle</h5>
+
+            <div class="flex-grow-1 d-flex align-items-center justify-content-center">
+                @if (ViewBag.ChartData != null)
+                {
+                    <ejs-accumulationchart id="transactionChart" background="transparent" enableSmartLabels="true" height="350px" width="100%">
+
+                        <e-accumulationchart-margin left="0" right="0" top="0" bottom="0"></e-accumulationchart-margin>
+
+                        <e-accumulationchart-legendsettings position="Bottom" height="30%" width="45%" textWrap="Wrap" maximumLabelWidth="60">
+                            <e-legendsettings-textstyle color="#fff" size="15px"></e-legendsettings-textstyle>
+                        </e-accumulationchart-legendsettings>
+
+                        <e-accumulationchart-tooltipsettings enable="true" format="${point.x} : ${point.y}"></e-accumulationchart-tooltipsettings>
+
+                        <e-accumulation-series-collection>
+                            <e-accumulation-series dataSource="@ViewBag.ChartData" xName="xValue" yName="yValue"
+                                                   innerRadius="50%" radius="60%"
+                                                   palettes=@(new string[]{"#0dcaf0", "#6610f2", "#d63384", "#fd7e14", "#ffc107", "#198754", "#20c997"})>
+
+                                <e-accumulationseries-datalabel name="text" visible="true" position="Outside">
+                                    <e-font color="#fff" fontWeight="600" size="11px"></e-font>
+                                    <e-connectorstyle length="10px" type="Curve"></e-connectorstyle>
+                                </e-accumulationseries-datalabel>
+
+                            </e-accumulation-series>
+                        </e-accumulation-series-collection>
+                    </ejs-accumulationchart>
+                }
+                else
+                {
+                    <div class="text-center text-muted">
+                        <i class="fa-solid fa-chart-pie fa-3x mb-3 opacity-25"></i>
+                        <p>No data available.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function onSearchClick() {
+        // 1. 抓文字框的值
+        var searchText = document.getElementById("searchInput").value;
+
+        // 2. 抓日曆元件的值 
+        var dateObj = document.getElementById("dateRangeInput").ej2_instances[0];
+        var dateValue = "";
+
+        if (dateObj && dateObj.value) {
+            // 如果日曆有選值，直接抓它的 value (格式會是設定 yyyy-MM-dd - yyyy-MM-dd)
+            var start = dateObj.startDate;
+            var end = dateObj.endDate;
+            if(start && end) {
+                // 轉成 yyyy-MM-dd
+                var s = start.getFullYear() + "-" + ("0"+(start.getMonth()+1)).slice(-2) + "-" + ("0"+start.getDate()).slice(-2);
+                var e = end.getFullYear() + "-" + ("0"+(end.getMonth()+1)).slice(-2) + "-" + ("0"+end.getDate()).slice(-2);
+                dateValue = s + " - " + e;
+            }
+        }
+
+        // 3. 組裝網址並跳轉
+        
+        var url = '/Transaction/History?searchQuery=' + encodeURIComponent(searchText) + '&dateRange=' + encodeURIComponent(dateValue);
+        window.location.href = url;
+    }
+</script>
+
+<script id="categoryTemplate" type="text/x-template">
+    <div class="d-flex align-items-center">
+        <span class="fw-bold">${Category.TitleWithIcon}</span>
+    </div>
+</script>
+
+<script id="amountTemplate" type="text/x-template">
+    ${if(Category.Type == "Income")}
+        <span class="fw-bold text-success">${FormattedAmount}</span>
+    ${else}
+        <span class="fw-bold text-danger">${FormattedAmount}</span>
+    ${/if}
+</script>
+
+<style>
+    .e-grid {
+        border: none !important;
+        font-family: 'Inter', sans-serif;
+    }
+
+        .e-grid .e-gridheader, .e-grid .e-gridcontent, .e-grid .e-pager {
+            background-color: #212b36 !important;
+        }
+
+        .e-grid .e-headercell {
+            background-color: #212b36 !important;
+            color: #adb5bd !important;
+            border-bottom: 1px solid #343a40 !important;
+        }
+
+        .e-grid .e-rowcell {
+            color: #fff !important;
+            border-bottom: 1px solid #2c3e50 !important;
+        }
+
+        .e-grid .e-row:hover .e-rowcell {
+            background-color: #2c3e50 !important;
+        }
+
+    .e-pager {
+        border-top: 1px solid #343a40 !important;
+        color: #fff !important;
+    }
+
+    .e-input-group {
+        background-color: #1a222b !important;
+        border: 1px solid #444 !important;
+        color: #fff !important;
+    }
+
+        .e-input-group input.e-input {
+            color: #fff !important;
+        }
+</style>

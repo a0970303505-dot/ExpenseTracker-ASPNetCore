@@ -1,0 +1,102 @@
+﻿@model expense_tracker.Models.Category
+
+@{
+    ViewData["PageTitle"] = Model.CategoryId == 0 ? "Create a new category" : "Edit category";
+    // 接收後端的圖示清單
+    var icons = ViewBag.Icons as List<string>;
+}
+
+<div class="row">
+
+    <div class="col-md-7">
+        <div class="widget p-5" style="background-color:#212b36">
+            <form asp-action="AddOrEdit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" name="CategoryId" value="@Model.CategoryId" />
+
+                <div class="mb-3">
+                    <div class='e-btn-group custom-rbt-group'>
+                        <input type="radio" id="radioleft" name="Type" value="Expense" checked="@(Model.Type == "Expense")" />
+                        <label class="e-btn" for="radioleft">Expense</label>
+                        <input type="radio" id="radiomiddle" name="Type" value="Income" checked="@(Model.Type == "Income")" />
+                        <label class="e-btn" for="radiomiddle">Income</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <ejs-textbox id="title" placeholder="Title" ejs-for="Title" floatLabelType="Always"></ejs-textbox>
+                    <span asp-validation-for="Title" class="text-danger fs-6"></span>
+                </div>
+
+                <div class="mb-3">
+                    <ejs-textbox id="icon" placeholder="Icon" ejs-for="Icon" floatLabelType="Always"></ejs-textbox>
+                    <span asp-validation-for="Icon" class="text-danger"></span>
+                </div>
+
+                <ejs-button id="submit" type="submit" content="submit" cssClass="e-success"></ejs-button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="widget h-100 p-4" style="background-color:#212b36">
+
+            <h5 class="fw-bold mb-4 text-center text-muted">Choose an Icon</h5>
+
+            <div class="d-flex flex-wrap gap-2 justify-content-center align-content-start" style="max-height: 350px; overflow-y: auto;">
+                @if (icons != null)
+                {
+                    foreach (var iconChar in icons)
+                    {
+                        <button type="button"
+                                class="btn btn-outline-secondary icon-btn border-0 fs-4"
+                                onclick="pickIcon('@iconChar')"
+                                style="width: 50px; height: 50px;">
+                            @iconChar
+                        </button>
+                    }
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // 點選右邊，填入左邊 
+        function pickIcon(selectedEmoji) {
+            // 1. 抓取左邊 Syncfusion TextBox 元件
+            var iconTextbox = document.getElementById("icon").ej2_instances[0];
+
+            // 2. 設定它的值
+            iconTextbox.value = selectedEmoji;
+
+            // (選用) 觸發一下 input 事件讓標籤浮動效果
+            iconTextbox.dataBind();
+        }
+    </script>
+
+    <style>
+        
+        .icon-btn:hover {
+            background-color: #343a40;
+            transform: scale(1.2); 
+            transition: transform 0.2s;
+        }
+
+        
+        .d-flex::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .d-flex::-webkit-scrollbar-thumb {
+            background-color: #444;
+            border-radius: 4px;
+        }
+    </style>
+}

@@ -1,0 +1,38 @@
+﻿@model expense_tracker.Models.ApplicationUser
+@{
+    ViewData["Title"] = "User Profile";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="widget p-5" style="background-color:#212b36">
+            <h3 class="fw-bold mb-4 text-white">Account Settings</h3>
+
+            <div class="mb-3">
+                <label class="text-muted small">Account Name</label>
+                <h4 class="text-white">@Model.FullName</h4>
+            </div>
+
+            <div class="mb-5">
+                <label class="text-muted small">Email</label>
+                <h4 class="text-white">@Model.Email</h4>
+            </div>
+
+            <div class="mb-4">
+                <a href="/Account/EditProfile" class="btn btn-primary px-4">
+                    <i class="fa-solid fa-pen-to-square me-2"></i> Edit Profile
+                </a>
+            </div>
+            <hr class="border-secondary my-4" />
+
+            <h5 class="text-danger fw-bold mt-4">Danger Zone</h5>
+            <p class="text-muted small mb-3">Deleting your account will remove all your data permanently.</p>
+
+            <form asp-action="DeleteAccount" method="post">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('WARNING: Are you sure? All your data will be lost forever!');">
+                    <i class="fa-solid fa-trash-can me-2"></i> Delete My Account
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

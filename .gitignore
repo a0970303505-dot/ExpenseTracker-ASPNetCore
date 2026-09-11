@@ -1,0 +1,6 @@
+.vs/
+bin/
+obj/
+*.user
+*.mp4
+*.pdf

@@ -1,0 +1,42 @@
+﻿@model IEnumerable<expense_tracker.Models.Budget>
+
+@{
+    ViewData["PageTitle"] = "Budgets";
+    ViewData["PageActionText"] = "+ New Budget";
+    ViewData["PageActionUrl"] = "/Budget/Create";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="widget">
+
+
+            <ejs-grid id="budgetGrid" dataSource="@Model" allowSorting="true" allowPaging="true">
+                <e-grid-pagesettings pageSize="10"></e-grid-pagesettings>
+                <e-grid-columns>
+                    <e-grid-column field="Category.TitleWithIcon" headerText="Category" width="200"></e-grid-column>
+
+                    <e-grid-column field="Amount" headerText="Amount" textAlign="Right" format="c0" width="150"></e-grid-column>
+
+                    <e-grid-column field="BudgetMonth" headerText="Month" width="150" format="MMM yyyy" type="date"></e-grid-column>
+
+                    <e-grid-column headerText="Actions" template="#actionColumnTemplate" width="100"></e-grid-column>
+                </e-grid-columns>
+            </ejs-grid>
+        </div>
+    </div>
+</div>
+
+<script id="actionColumnTemplate" type="text/x-template">
+    <div class="d-flex flex-row justify-content-start">
+        <a class="btn btn-sm no-a-decoration" href="/Budget/Edit/${BudgetId}">
+            <i class="fa-solid fa-pen fa-lg"></i>
+        </a>
+        <form action="/Budget/Delete/${BudgetId}" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-sm btn-link no-a-decoration" onclick="return confirm('Are you sure to delete this budget?')">
+                <i class="fa-solid fa-trash-can fa-lg text-danger"></i>
+            </button>
+        </form>
+    </div>
+</script>
