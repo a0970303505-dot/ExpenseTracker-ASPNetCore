@@ -3,4 +3,5 @@ bin/
 obj/
 *.user
 *.mp4
+!demo.mp4
 *.pdf

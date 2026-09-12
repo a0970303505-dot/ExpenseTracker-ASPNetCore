@@ -1,5 +1,11 @@
 # Database Systems Final Project — Expense Tracker
 
+## Demo
+
+![demo](screenshots/demo.gif)
+
+▶️ 完整 Demo 影片（約 3 分鐘）: **[demo.mp4](demo.mp4)**（34MB，GitHub 無法線上預覽，需下載觀看）
+
 ![dashboard](screenshots/dashboard.jpg)
 
 ## Introduction
